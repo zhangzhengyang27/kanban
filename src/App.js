@@ -2,21 +2,17 @@ import React, { useState } from "react"
 import logo from "./logo.svg"
 import "./App.css"
 
-const todoList = [
-  { title: "开发任务-1", status: "22-05-22 18:15" },
-  { title: "开发任务-3", status: "22-05-22 18:15" },
-  { title: "开发任务-5", status: "22-05-22 18:15" },
-  { title: "测试任务-3", status: "22-05-22 18:15" }
-]
-const ongoingList = [
-  { title: "开发任务-4", status: "22-05-22 18:15" },
-  { title: "开发任务-6", status: "22-05-22 18:15" },
-  { title: "测试任务-2", status: "22-05-22 18:15" }
-]
-const doneList = [
-  { title: "开发任务-2", status: "22-05-22 18:15" },
-  { title: "测试任务-1", status: "22-05-22 18:15" }
-]
+const KanbanBoard = ({ children }) => <main className="kanban-board">{children}</main>
+
+const KanbanColumn = ({ children, className, title }) => {
+  const combinedClassName = `kanban-column ${className}`
+  return (
+    <section className={combinedClassName}>
+      <h2>{title}</h2>
+      <ul>{children}</ul>
+    </section>
+  )
+}
 
 const KanbanCard = ({ title, status }) => {
   return (
@@ -50,12 +46,31 @@ const KanbanNewCard = ({ onSubmit }) => {
 
 function App() {
   const [showAdd, setShowAdd] = useState(false)
+  const [todoList, setTodoList] = useState([
+    { title: "开发任务-1", status: "22-05-22 18:15" },
+    { title: "开发任务-3", status: "22-05-22 18:15" },
+    { title: "开发任务-5", status: "22-05-22 18:15" },
+    { title: "测试任务-3", status: "22-05-22 18:15" }
+  ])
+  const [ongoingList, setOngoingList] = useState([
+    { title: "开发任务-4", status: "2022-05-22 18:15" },
+    { title: "开发任务-6", status: "2022-06-22 18:15" },
+    { title: "测试任务-2", status: "2022-07-22 18:15" }
+  ])
+  const [doneList, setDoneList] = useState([
+    { title: "开发任务-2", status: "2022-06-24 18:15" },
+    { title: "测试任务-1", status: "2022-07-03 18:15" }
+  ])
+
   const handlerAdd = () => {
     setShowAdd(true)
   }
 
   const handlerSubmit = (title) => {
-    todoList.unshift({ title, status: new Date().toLocaleString() })
+    setTodoList((currentTodoList) => [
+      { title, status: new Date().toDateString() },
+      ...currentTodoList
+    ])
     setShowAdd(false)
   }
 
@@ -65,38 +80,33 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <h1>我的看板</h1>
       </header>
-      <main className="kanban-board">
-        <section className="kanban-column column-todo">
-          <h2>
-            待办事项
-            <button onClick={handlerAdd} disabled={showAdd}>
-              + 添加新卡片
-            </button>
-          </h2>
-          <ul>
-            {showAdd && <KanbanNewCard onSubmit={handlerSubmit} />}
-            {todoList.map((props) => (
-              <KanbanCard {...props} />
-            ))}
-          </ul>
-        </section>
-        <section className="kanban-column column-ongoing">
-          <h2>进行中</h2>
-          <ul>
-            {ongoingList.map((props) => (
-              <KanbanCard {...props} />
-            ))}
-          </ul>
-        </section>
-        <section className="kanban-column column-done">
-          <h2>已完成</h2>
-          <ul>
-            {doneList.map((props) => (
-              <KanbanCard {...props} />
-            ))}
-          </ul>
-        </section>
-      </main>
+      <KanbanBoard>
+        <KanbanColumn
+          className="column-todo"
+          title={
+            <>
+              待办事项
+              <button onClick={handlerAdd} disabled={showAdd}>
+                + 添加新卡片
+              </button>
+            </>
+          }>
+          {showAdd && <KanbanNewCard onSubmit={handlerSubmit} />}
+          {todoList.map((props) => (
+            <KanbanCard {...props} />
+          ))}
+        </KanbanColumn>
+        <KanbanColumn className="column-ongoing" title="进行中">
+          {ongoingList.map((props) => (
+            <KanbanCard {...props} />
+          ))}
+        </KanbanColumn>
+        <KanbanColumn className="column-done" title="已完成">
+          {doneList.map((props) => (
+            <KanbanCard {...props} />
+          ))}
+        </KanbanColumn>
+      </KanbanBoard>
     </div>
   )
 }
